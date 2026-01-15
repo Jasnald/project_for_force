@@ -2,7 +2,7 @@ function [cut_indices] = find_cut_indices(force_signal, fs)
     % FIND_CUT_INDICES Detecta "Ilhas de Atividade" na derivada.
     % Robusto contra: Vibração (oscilação no início), Drift (subida lenta) e Ruído.
     
-    %% 1. Mapa de Energia (Aceleração da Força)
+    % 1. Mapa de Energia (Aceleração da Força)
     % Suaviza levemente para não pegar ruído branco
     smooth_win = round(fs * 0.005); % 5ms
     sig_smooth = smoothdata(force_signal, 'gaussian', smooth_win);
@@ -12,7 +12,7 @@ function [cut_indices] = find_cut_indices(force_signal, fs)
     dF = gradient(sig_smooth);
     energy = abs(dF);
     
-    %% 2. Limiar Estatístico Robusto (Sem números mágicos fixos)
+    % 2. Limiar Estatístico Robusto (Sem números mágicos fixos)
     % Usamos a Mediana e o MAD (Median Absolute Deviation).
     % Diferente da média/desvio padrão, o MAD ignora os cortes gigantes 
     % e calcula o ruído base real do sensor.
@@ -24,7 +24,7 @@ function [cut_indices] = find_cut_indices(force_signal, fs)
     % Esse '5' é estatístico (5 Sigma), funciona pra qualquer sensor.
     trigger_level = bg_noise + 5 * robust_sigma;
     
-    %% 3. Binarização e Fusão (A Solução para a Vibração)
+    % 3. Binarização e Fusão (A Solução para a Vibração)
     % Onde existe agitação?
     is_active = energy > trigger_level;
     
@@ -36,7 +36,7 @@ function [cut_indices] = find_cut_indices(force_signal, fs)
     min_gap_samples = round(fs * 0.050); % 50ms de tolerância p/ vibração
     is_active = merge_gaps(is_active, min_gap_samples);
     
-    %% 4. Extração dos Intervalos
+    % 4. Extração dos Intervalos
     edges = diff([0; is_active; 0]);
     starts = find(edges == 1);
     ends   = find(edges == -1) - 1;
@@ -46,7 +46,7 @@ function [cut_indices] = find_cut_indices(force_signal, fs)
         return;
     end
     
-    %% 5. Refinamento das Bordas (Opcional)
+    % 5. Refinamento das Bordas (Opcional)
     % A detecção de energia pega o "grosso" do evento. 
     % Expandimos 1ms para garantir que pegamos o start exato.
     margin = round(fs * 0.001);
