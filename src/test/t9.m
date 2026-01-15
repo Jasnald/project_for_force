@@ -5,7 +5,7 @@ addpath('functions');
 %% 1. Configuration
 file_path   = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 1\PS1_Probe3L.tdms";
 num_teeth   = 1;              % Number of teeth (flutes)
-trim_pct    = [0.1, 0.1];   % Crop 10% from start/end of steady state
+trim_pct    = [0.5, 0.49];   % Crop 10% from start/end of steady state
 min_dist_ms = 50;             % Min distance between teeth (in ms) for detection
 
 %% 2. Load & Pre-processing (Macro)
