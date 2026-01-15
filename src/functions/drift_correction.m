@@ -1,33 +1,28 @@
-function corrected = drift_correction(data, int_start, int_end)
-    % DRIFT_CORRECTION Removes linear drift from signal based on start/end points.
+function [corrected, trend_line] = drift_correction(data, fs, win1, win2)
+    % ROBUST_DRIFT_CORRECTION Remove drift usando duas janelas de tempo seguras.
     
-    % Determine start and end points for correction
-    x_start = max(int_start - 750, 1);
-    x_end = min(int_end + 450, length(data));
+    % Converte tempo (segundos) para índices (amostras)
+    idx1 = max(1, round(win1 * fs));
+    idx2 = min(length(data), round(win2 * fs));
     
-    % Calculate the mean of data in regions before and after the interval
-    y_start = movmean(data(x_start), 500);
-    y_end = movmean(data(x_end), 500);
+    % Calcula a média da força nessas regiões seguras
+    val1 = mean(data(idx1(1):idx1(2)));
+    val2 = mean(data(idx2(1):idx2(2)));
     
-    % Linear regression: m is slope, b is y-intercept
-    x_values = [x_start, x_end];
-    y_values = [y_start, y_end];
+    % Acha o "centro" (em amostras) de cada região
+    center1 = mean(idx1);
+    center2 = mean(idx2);
     
-    p = polyfit(x_values, y_values, 1);
-    m = p(1);
-    b = p(2);
+    % Equação da Reta (y = mx + b)
+    m = (val2 - val1) / (center2 - center1); % Inclinação
+    b = val1 - (m * center1);                % Offset
     
-    % --- CORREÇÃO AQUI ---
-    % Cria o vetor de índices
-    idx_vec = (1:length(data));
+    % Cria a linha de tendência para o arquivo todo
+    idx_vec = 1:length(data);
+    if iscolumn(data), idx_vec = idx_vec'; end % Garante dimensão correta
     
-    % Se 'data' for coluna, transpoe o índice para coluna também
-    if iscolumn(data)
-        idx_vec = idx_vec'; 
-    end
+    trend_line = m * idx_vec + b;
     
-    correction_line = m * idx_vec + b;
-    % ---------------------
-    
-    corrected = data - correction_line;
+    % Subtrai a tendência
+    corrected = data - trend_line;
 end
