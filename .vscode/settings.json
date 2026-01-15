@@ -1,0 +1,11 @@
+{
+    // Hide MATLAB backup files from the file explorer
+    "files.exclude": {
+        "**/*.asv": true,
+        "**/*.autosave": true,
+        "**/*.mex*": true
+    },
+    // MATLAB Extension settings
+    "matlab.indexWorkspace": true,
+    "matlab.linter.enabled": true
+}

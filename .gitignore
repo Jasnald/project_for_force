@@ -1,0 +1,40 @@
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# MATLAB backups
+*.asv
+*~
+*.m~
+
+# Mex/p-code/build
+*.mex*
+*.p
+build/
+
+# Dados processados (gerados) – tudo fora do controle de versão
+data/
+
+
+# Artefatos comuns (se quiser ignorar globalmente; se preferir reter alguns, remova estas linhas)
+*.fig
+*.mat
+*.xlsx
+*.xls
+*.csv
+
+# Logs/temporários
+*.log
+*.tmp
+
+# MATLAB garbage
+*.asv
+*.autosave
+*.slxc
+slprj/
+
+# Large Data (Data usually shouldn't go to git)
+*.tdms
+*.mat
+/Data/
