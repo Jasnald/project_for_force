@@ -16,7 +16,7 @@ data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 2\"
 file_list   = {"PS2_Probe1L.tdms"}; 
 
 num_teeth   = 1;
-trim_pct    = [0.50, 0.495];   % Cortar 5% inicio, 10% fim
+trim_pct    = [0.150, 0.1495];   % Cortar 5% inicio, 10% fim
 cutoff_freq = 600;            % Filtro Lowpass [Hz]
 
 %% Loop de Arquivos
@@ -62,7 +62,9 @@ for f = 1:length(file_list)
 
     %% 6. Coordinate Transformation
     fprintf('6. Converting to Cutting Coordinates (Fc, Fcn)...\n');
-    theta_start = 0; % Ajuste este valor olhando para os gráficos
+    theta_start = auto_find_theta(results);
+    fprintf('   -> Theta Start: %.1f degrees\n', theta_start);
+
     results = calculate_cutting_forces(results, theta_start); % Sem 'fs' agora
 
     %% 7. Visualization (Updated)
