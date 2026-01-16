@@ -11,12 +11,12 @@ elseif exist(fullfile(script_path, '../functions'), 'dir')
 end
 
 % --- Configuração ---
-data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 1\";
+data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 2\";
 % Lista manual OU usar dir() para pegar todos os .tdms
-file_list   = {"PS1_Probe3L.tdms"}; 
+file_list   = {"PS2_Probe2L.tdms"}; 
 
 num_teeth   = 1;
-trim_pct    = [0.50, 0.4950];   % Cortar 5% inicio, 10% fim
+trim_pct    = [0.50, 0.495];   % Cortar 5% inicio, 10% fim
 cutoff_freq = 600;            % Filtro Lowpass [Hz]
 
 %% Loop de Arquivos
@@ -26,7 +26,6 @@ for f = 1:length(file_list)
     
     fprintf('\n>>> Processando: %s <<<\n', filename);
     
-
     % 1. Load
     raw = load_tdms_data(full_path); %
     
