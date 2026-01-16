@@ -13,7 +13,7 @@ end
 % --- Configuração ---
 data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 2\";
 % Lista manual OU usar dir() para pegar todos os .tdms
-file_list   = {"PS2_Probe2L.tdms"}; 
+file_list   = {"PS2_Probe1L.tdms"}; 
 
 num_teeth   = 1;
 trim_pct    = [0.50, 0.495];   % Cortar 5% inicio, 10% fim
@@ -60,5 +60,23 @@ for f = 1:length(file_list)
     % 6. Visualization (Função Nova)
     visualize_results(t_steady, fx_steady, cut_indices, results, filename);
 
+    %% 6. Coordinate Transformation
+    fprintf('6. Converting to Cutting Coordinates (Fc, Fcn)...\n');
+    theta_start = 0; % Ajuste este valor olhando para os gráficos
+    results = calculate_cutting_forces(results, theta_start); % Sem 'fs' agora
 
+    %% 7. Visualization (Updated)
+    figure('Name', 'Cutting Forces (Rotating Frame)', 'Color', 'w');
+
+    % Plot Fc (Tangential - Consumes Power)
+    subplot(2,1,1);
+    plot(results.avg_profile.percent_axis, results.avg_profile.fc_mean, 'r', 'LineWidth', 2);
+    ylabel('Tangential Force Fc [N]'); title('Cutting Force (Torque generating)');
+    grid on;
+
+    % Plot Fcn (Normal - Radial compression)
+    subplot(2,1,2);
+    plot(results.avg_profile.percent_axis, results.avg_profile.fcn_mean, 'b', 'LineWidth', 2);
+    ylabel('Normal Force Fcn [N]'); title('Normal/Radial Force');
+    xlabel('% of Engagement'); grid on;
 end
