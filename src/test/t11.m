@@ -11,9 +11,9 @@ elseif exist(fullfile(script_path, '../functions'), 'dir')
 end
 
 % --- Configuração ---
-data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 2\";
+data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 1\";
 % Lista manual OU usar dir() para pegar todos os .tdms
-file_list   = {"PS2_Probe1L.tdms"}; 
+file_list   = {"PS1_Probe4L.tdms"}; 
 
 num_teeth   = 1;
 trim_pct    = [0.150, 0.1495];   % Cortar 5% inicio, 10% fim
@@ -58,27 +58,43 @@ for f = 1:length(file_list)
             size(cut_indices,1), results.rpm_mean, results.engagement_time_mean);
     
     % 6. Visualization (Função Nova)
-    visualize_results(t_steady, fx_steady, cut_indices, results, filename);
+    % visualize_results(t_steady, fx_steady, cut_indices, results, filename);
 
     %% 6. Coordinate Transformation
     fprintf('6. Converting to Cutting Coordinates (Fc, Fcn)...\n');
-    theta_start = auto_find_theta(results);
-    fprintf('   -> Theta Start: %.1f degrees\n', theta_start);
+    %theta_start = auto_find_theta(results);
+    %theta_start = deg2rad(theta_start); % Converte para radianos
+    theta_start = 55;
+    results = calculate_cutting_forces(results, theta_start, -1); % Sem 'fs' agora
 
-    results = calculate_cutting_forces(results, theta_start); % Sem 'fs' agora
+    %% 7. Visualization (Combined - Boss Style)
+    figure('Name', 'Cutting Forces Combined', 'Color', 'w');
+    hold on;
 
-    %% 7. Visualization (Updated)
-    figure('Name', 'Cutting Forces (Rotating Frame)', 'Color', 'w');
+    % 1. Configurar Eixo de Tempo (ms)
+    num_pts = length(results.avg_profile.fc_mean);
+    duration_ms = results.engagement_time_mean * 1000; 
+    time_axis = linspace(0, duration_ms, num_pts);
 
-    % Plot Fc (Tangential - Consumes Power)
-    subplot(2,1,1);
-    plot(results.avg_profile.percent_axis, results.avg_profile.fc_mean, 'r', 'LineWidth', 2);
-    ylabel('Tangential Force Fc [N]'); title('Cutting Force (Torque generating)');
-    grid on;
+    % 2. Função auxiliar para área sombreada (Transparente)
+    plot_shaded = @(x, y, err, color) fill([x, fliplr(x)], ...
+        [y+err, fliplr(y-err)], color, 'FaceAlpha', 0.15, 'EdgeColor', 'none', 'HandleVisibility', 'off');
 
-    % Plot Fcn (Normal - Radial compression)
-    subplot(2,1,2);
-    plot(results.avg_profile.percent_axis, results.avg_profile.fcn_mean, 'b', 'LineWidth', 2);
-    ylabel('Normal Force Fcn [N]'); title('Normal/Radial Force');
-    xlabel('% of Engagement'); grid on;
+    % --- Plotar Desvios Padrão (Sombra) Primeiro ---
+    plot_shaded(time_axis, results.avg_profile.fc_mean, results.avg_profile.fc_std, 'r');
+    plot_shaded(time_axis, results.avg_profile.fcn_mean, results.avg_profile.fcn_std, 'b');
+
+    % --- Plotar Linhas Médias ---
+    h1 = plot(time_axis, results.avg_profile.fc_mean, 'r', 'LineWidth', 1.5);
+    h2 = plot(time_axis, results.avg_profile.fcn_mean, 'b', 'LineWidth', 1.5);
+
+    % --- Formatação Final ---
+    ylabel('Force [N]'); 
+    xlabel('Time [ms]');
+    title('Cutting Forces Comparison');
+    legend([h1, h2], {'F_c (Tangential)', 'F_{cN} (Normal)'}, 'Location', 'best');
+    grid on; 
+    xlim([0 duration_ms]);
+
+    hold off;
 end
