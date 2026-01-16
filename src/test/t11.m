@@ -11,9 +11,9 @@ elseif exist(fullfile(script_path, '../functions'), 'dir')
 end
 
 % --- Configuração ---
-data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 2\";
+data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 3\";
 % Lista manual OU usar dir() para pegar todos os .tdms
-file_list   = {"PS2_Probe1L.tdms"}; 
+file_list   = {"PS3_Probe5L.tdms"}; 
 
 num_teeth   = 1;
 trim_pct    = [0.150, 0.1495];   % Cortar 5% inicio, 10% fim
@@ -65,7 +65,7 @@ for f = 1:length(file_list)
     %theta_start = auto_find_theta(results);
     %theta_start = deg2rad(theta_start); % Converte para radianos
     theta_start = 78;
-    results = calculate_cutting_forces(results, theta_start, -1); % Sem 'fs' agora
+    results = calculate_cutting_forces(results, -1); % Sem 'fs' agora
 
     %% 7. Visualization (Combined - Boss Style)
     figure('Name', 'Cutting Forces Combined', 'Color', 'w');
