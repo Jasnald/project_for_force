@@ -17,7 +17,7 @@ file_list   = {"PS3_Probe5L.tdms"};
 
 num_teeth   = 1;
 trim_pct    = [0.150, 0.1495];   % Cortar 5% inicio, 10% fim
-cutoff_freq = 600;            % Filtro Lowpass [Hz]
+cutoff_freq = 1000;            % Filtro Lowpass [Hz]
 
 %% Loop de Arquivos
 for f = 1:length(file_list)
@@ -50,7 +50,15 @@ for f = 1:length(file_list)
     % 4. Segmentation (Find Teeth)
     cut_indices = find_starts(fx_steady, raw.fs); %
     
+    if isempty(cut_indices)
+        warning('Skipping %s: No cuts detected.', filename);
+        continue; % Jumps to next file loop
+    end
 
+    % Check if analysis produced valid data before plotting
+    if isfield(results, 'avg_profile') && all(isnan(results.avg_profile.x_mean))
+        warning('Analysis produced NaN results. Check input signal quality.');
+    end
     % 5. Metrics (Average & RPM)
     results = analyze_cuts_and_average(fx_steady, fy_steady, cut_indices, raw.fs, num_teeth); %
     
@@ -62,10 +70,8 @@ for f = 1:length(file_list)
 
     %% 6. Coordinate Transformation
     fprintf('6. Converting to Cutting Coordinates (Fc, Fcn)...\n');
-    %theta_start = auto_find_theta(results);
-    %theta_start = deg2rad(theta_start); % Converte para radianos
-    theta_start = 78;
-    results = calculate_cutting_forces(results, -1); % Sem 'fs' agora
+
+    results = calculate_forces_kinematic(results, fx_steady, fy_steady, 1); % Sem 'fs' agora
 
     %% 7. Visualization (Combined - Boss Style)
     figure('Name', 'Cutting Forces Combined', 'Color', 'w');
