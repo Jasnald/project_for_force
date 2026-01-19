@@ -13,7 +13,7 @@ end
 % --- Configuração ---
 data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 3\";
 % Lista manual OU usar dir() para pegar todos os .tdms
-file_list   = {"PS3_Probe5L.tdms"}; 
+file_list   = {"PS3_Probe6L.tdms"}; 
 
 num_teeth   = 1;
 trim_pct    = [0.150, 0.1495];   % Cortar 5% inicio, 10% fim
@@ -48,20 +48,23 @@ for f = 1:length(file_list)
     [fy_steady, ~]        = extract_steady_state(fy_c, raw.time, cut_limits, trim_pct);
     
     % 4. Segmentation (Find Teeth)
-    cut_indices = find_starts(fx_steady, raw.fs); %
-    
-    if isempty(cut_indices)
-        warning('Skipping %s: No cuts detected.', filename);
-        continue; % Jumps to next file loop
-    end
+        cut_indices = find_starts(fx_steady, raw.fs); 
 
-    % Check if analysis produced valid data before plotting
-    if isfield(results, 'avg_profile') && all(isnan(results.avg_profile.x_mean))
-        warning('Analysis produced NaN results. Check input signal quality.');
-    end
-    % 5. Metrics (Average & RPM)
-    results = analyze_cuts_and_average(fx_steady, fy_steady, cut_indices, raw.fs, num_teeth); %
-    
+        % --- VERIFICAÇÃO 1: Se não achou cortes, pula ---
+        if isempty(cut_indices)
+            warning('Pulando %s: Nenhum corte detectado.', filename);
+            continue; % Pula para o próximo arquivo do loop
+        end
+
+        % 5. Metrics (Average & RPM) -> AQUI CRIA A VARIÁVEL RESULTS
+        results = analyze_cuts_and_average(fx_steady, fy_steady, cut_indices, raw.fs, num_teeth); 
+        
+        % --- VERIFICAÇÃO 2: Agora sim checa se o results é válido ---
+        if isfield(results, 'avg_profile') && all(isnan(results.avg_profile.x_mean))
+            warning('A análise gerou resultados NaN. Verifique a qualidade do sinal.');
+            continue;
+        end
+
     fprintf('   -> Cortes: %d | RPM Médio: %.0f | Tempo Médio: %.4fs\n', ...
             size(cut_indices,1), results.rpm_mean, results.engagement_time_mean);
     
@@ -72,35 +75,39 @@ for f = 1:length(file_list)
     fprintf('6. Converting to Cutting Coordinates (Fc, Fcn)...\n');
 
     results = calculate_forces_kinematic(results, fx_steady, fy_steady, 1); % Sem 'fs' agora
-
-    %% 7. Visualization (Combined - Boss Style)
-    figure('Name', 'Cutting Forces Combined', 'Color', 'w');
-    hold on;
-
-    % 1. Configurar Eixo de Tempo (ms)
-    num_pts = length(results.avg_profile.fc_mean);
-    duration_ms = results.engagement_time_mean * 1000; 
-    time_axis = linspace(0, duration_ms, num_pts);
-
-    % 2. Função auxiliar para área sombreada (Transparente)
-    plot_shaded = @(x, y, err, color) fill([x, fliplr(x)], ...
-        [y+err, fliplr(y-err)], color, 'FaceAlpha', 0.15, 'EdgeColor', 'none', 'HandleVisibility', 'off');
-
-    % --- Plotar Desvios Padrão (Sombra) Primeiro ---
-    plot_shaded(time_axis, results.avg_profile.fc_mean, results.avg_profile.fc_std, 'r');
-    plot_shaded(time_axis, results.avg_profile.fcn_mean, results.avg_profile.fcn_std, 'b');
-
-    % --- Plotar Linhas Médias ---
-    h1 = plot(time_axis, results.avg_profile.fc_mean, 'r', 'LineWidth', 1.5);
-    h2 = plot(time_axis, results.avg_profile.fcn_mean, 'b', 'LineWidth', 1.5);
-
-    % --- Formatação Final ---
-    ylabel('Force [N]'); 
-    xlabel('Time [ms]');
-    title('Cutting Forces Comparison');
-    legend([h1, h2], {'F_c (Tangential)', 'F_{cN} (Normal)'}, 'Location', 'best');
-    grid on; 
-    xlim([0 duration_ms]);
-
-    hold off;
+    if isempty(results.avg_profile.fc_mean)
+        warning('Results empty. Skipping plot.');
+    else
+        % ... call plot code ...
+            %% 7. Visualization (Combined - Boss Style)
+            figure('Name', 'Cutting Forces Combined', 'Color', 'w');
+            hold on;
+        
+            % 1. Configurar Eixo de Tempo (ms)
+            num_pts = length(results.avg_profile.fc_mean);
+            duration_ms = results.engagement_time_mean * 1000; 
+            time_axis = linspace(0, duration_ms, num_pts);
+        
+            % 2. Função auxiliar para área sombreada (Transparente)
+            plot_shaded = @(x, y, err, color) fill([x, fliplr(x)], ...
+                [y+err, fliplr(y-err)], color, 'FaceAlpha', 0.15, 'EdgeColor', 'none', 'HandleVisibility', 'off');
+        
+            % --- Plotar Desvios Padrão (Sombra) Primeiro ---
+            plot_shaded(time_axis, results.avg_profile.fc_mean, results.avg_profile.fc_std, 'r');
+            plot_shaded(time_axis, results.avg_profile.fcn_mean, results.avg_profile.fcn_std, 'b');
+        
+            % --- Plotar Linhas Médias ---
+            h1 = plot(time_axis, results.avg_profile.fc_mean, 'r', 'LineWidth', 1.5);
+            h2 = plot(time_axis, results.avg_profile.fcn_mean, 'b', 'LineWidth', 1.5);
+        
+            % --- Formatação Final ---
+            ylabel('Force [N]'); 
+            xlabel('Time [ms]');
+            title('Cutting Forces Comparison');
+            legend([h1, h2], {'F_c (Tangential)', 'F_{cN} (Normal)'}, 'Location', 'best');
+            grid on; 
+            xlim([0 duration_ms]);
+        
+            hold off;
+    end
 end
