@@ -68,8 +68,7 @@ for f = 1:length(file_list)
     fprintf('   -> Cortes: %d | RPM Médio: %.0f | Tempo Médio: %.4fs\n', ...
             size(cut_indices,1), results.rpm_mean, results.engagement_time_mean);
     
-    % 6. Visualization (Função Nova)
-    % visualize_results(t_steady, fx_steady, cut_indices, results, filename);
+
 
     %% 6. Coordinate Transformation
     fprintf('6. Converting to Cutting Coordinates (Fc, Fcn)...\n');
@@ -77,39 +76,7 @@ for f = 1:length(file_list)
     theta_s_deg = calc_theta(1.8, 20); % Exemplo: ae=2mm, D=20mm
 
     results = calculate_forces_kinematic(results, fx_steady, fy_steady, theta_s_deg); % Sem 'fs' agora
-    if isempty(results.avg_profile.fc_mean)
-        warning('Results empty. Skipping plot.');
-    else
-        % ... call plot code ...
-            %% 7. Visualization (Combined - Boss Style)
-            figure('Name', 'Cutting Forces Combined', 'Color', 'w');
-            hold on;
-        
-            % 1. Configurar Eixo de Tempo (ms)
-            num_pts = length(results.avg_profile.fc_mean);
-            duration_ms = results.engagement_time_mean * 1000; 
-            time_axis = linspace(0, duration_ms, num_pts);
-        
-            % 2. Função auxiliar para área sombreada (Transparente)
-            plot_shaded = @(x, y, err, color) fill([x, fliplr(x)], ...
-                [y+err, fliplr(y-err)], color, 'FaceAlpha', 0.15, 'EdgeColor', 'none', 'HandleVisibility', 'off');
-        
-            % --- Plotar Desvios Padrão (Sombra) Primeiro ---
-            plot_shaded(time_axis, results.avg_profile.fc_mean, results.avg_profile.fc_std, 'r');
-            plot_shaded(time_axis, results.avg_profile.fcn_mean, results.avg_profile.fcn_std, 'b');
-        
-            % --- Plotar Linhas Médias ---
-            h1 = plot(time_axis, results.avg_profile.fc_mean, 'r', 'LineWidth', 1.5);
-            h2 = plot(time_axis, results.avg_profile.fcn_mean, 'b', 'LineWidth', 1.5);
-        
-            % --- Formatação Final ---
-            ylabel('Force [N]'); 
-            xlabel('Time [ms]');
-            title('Cutting Forces Comparison');
-            legend([h1, h2], {'F_c (Tangential)', 'F_{cN} (Normal)'}, 'Location', 'best');
-            grid on; 
-            xlim([0 duration_ms]);
-        
-            hold off;
-    end
+    
+    % 7. Visualization (TUDO EM UMA LINHA)
+    visualize_results(t_steady, fx_steady, cut_indices, results, filename);
 end
