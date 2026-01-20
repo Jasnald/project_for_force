@@ -1,5 +1,5 @@
-function [cut_indices] = find_starts(force_signal, fs)
-% FIND_STARTS Detects cuts with Precise Indexing (Section 2 Logic).
+function [cut_indices] = detect_cut_indices(force_signal, fs)
+% DETECT_CUT_INDICES Detects cuts with Precise Indexing (Section 2 Logic).
 % Start: First point ABOVE 10% threshold.
 % End: Last point ABOVE noise floor (before next tooth).
 

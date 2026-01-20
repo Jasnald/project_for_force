@@ -1,4 +1,4 @@
-function [results] = calculate_forces_kinematic(results, raw_fx, raw_fy, theta_s_deg)
+function [results] = compute_kinematic_forces(results, raw_fx, raw_fy, theta_s_deg)
     % CALCULATE_FORCES_KINEMATIC Transforms Fx/Fy to Fc/Fcn using instantaneous Theta(t).
     % Adds start angle offset (theta_s) to the integration.
     

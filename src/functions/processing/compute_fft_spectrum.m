@@ -1,5 +1,5 @@
-function [freq_vector, amplitude] = get_frequency_spectrum(data, dt)
-    % GET_FREQUENCY_SPECTRUM Computes the single-sided amplitude spectrum of a signal.
+function [freq_vector, amplitude] = compute_fft_spectrum(data, dt)
+    % COMPUTE_FFT_SPECTRUM Computes the single-sided amplitude spectrum of a signal.
     % Inputs:
     %   data: Vector containing the signal
     %   dt: Sampling period (seconds) (1/fs)

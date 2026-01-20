@@ -1,4 +1,4 @@
-function [corrected, trend_line] = drift_correction(data, fs, win1, win2)
+function [corrected, trend_line] = remove_linear_drift(data, fs, win1, win2)
     % ROBUST_DRIFT_CORRECTION Remove drift usando duas janelas de tempo seguras.
     
     % Converte tempo (segundos) para índices (amostras)

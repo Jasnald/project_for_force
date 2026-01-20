@@ -1,7 +1,7 @@
 % FILTER_FILES Lists files in a directory matching a specific extension.
 % Refactored from 'jcj_filterforfiles.m' to use native MATLAB vectorization.
 
-function [file_list] = filter_files(folder_path, file_extension) 
+function [file_list] = list_files_by_ext(folder_path, file_extension) 
     % Create search pattern (e.g., 'D:/data/*.tdms')
     search_pattern = fullfile(folder_path, ['*.' file_extension]);
     

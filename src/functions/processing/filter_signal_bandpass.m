@@ -1,7 +1,7 @@
 % APPLY_BANDPASS Isolates a frequency range around a center frequency.
 % Refactored from 'noisefilter_Signal.m'.
 
-function filtered_signal = apply_bandpass(input_signal, fs, center_freq, bandwidth)
+function filtered_signal = filter_signal_bandpass(input_signal, fs, center_freq, bandwidth)
     % WARNING: Narrow bandpass filtering can distort the physical shape 
     % of cutting force profiles. Use with caution for profile averaging.
     

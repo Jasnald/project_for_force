@@ -1,6 +1,6 @@
-function data = load_tdms_data(filePath)
-    %LOAD_TDMS_DATA Load TDMS file and extract relevant data
-    
+function data = read_tdms_file(filePath)
+    %READ_TDMS_FILE Load TDMS file and extract relevant data
+
     % Extract sampling rate from channel properties
     fs = 100000; % Default value
     

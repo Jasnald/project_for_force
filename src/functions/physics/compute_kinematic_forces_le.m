@@ -1,5 +1,5 @@
-function [results] = calculate_cutting_forces(results, theta_start_deg, rotation_dir)
-    % CALCULATE_CUTTING_FORCES Transforma Fx, Fy -> Fc, Fcn no referencial rotativo
+function [results] = compute_kinematic_forces_le(results, theta_start_deg, rotation_dir)
+    % COMPUTE_KINEMATIC_FORCES Transforma Fx, Fy -> Fc, Fcn no referencial rotativo
     %
     % Inputs:
     %   results: Struct com stack_x, stack_y, rpm_all, engagement_time_all

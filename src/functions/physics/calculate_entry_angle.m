@@ -1,4 +1,4 @@
-function theta_s = calc_theta(ae, D)
+function theta_s = calculate_entry_angle(ae, D)
     % Calcula o angulo de engajamento fisico (em graus)
     % ae: profundidade radial de corte (mm)
     % D:  diametro da ferramenta (mm)

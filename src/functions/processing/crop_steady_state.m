@@ -1,5 +1,5 @@
-function [steady_data, steady_time] = extract_steady_state(data, time, cut_interval, trim_pct)
-    % EXTRACT_STEADY_STATE Crops the signal to keep only the stable cutting region.
+function [steady_data, steady_time] = crop_steady_state(data, time, cut_interval, trim_pct)
+    % CROP_STEADY_STATE Crops the signal to keep only the stable cutting region.
     % Inputs:
     %   cut_interval: [t_start, t_end] found by auto-detection
     %   trim_pct: [pct_start, pct_end] e.g., [0.05 0.10] (5% start, 10% end)

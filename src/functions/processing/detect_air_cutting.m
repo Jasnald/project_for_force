@@ -1,6 +1,6 @@
-function [win_start, win_end, cut_interval] = get_air_windows_auto(signal, fs)
-    % GET_AIR_WINDOWS_AUTO Retorna zonas seguras E o intervalo exato do corte.
-    
+function [win_start, win_end, cut_interval] = detect_air_cutting(signal, fs)
+    % DETECT_AIR_CUTTING Retorna zonas seguras E o intervalo exato do corte.
+
     %% 1. Mapa de Vibração
     d_sig = [0; diff(signal)]; 
     vibration_energy = smoothdata(abs(d_sig), 'gaussian', fs*0.5);

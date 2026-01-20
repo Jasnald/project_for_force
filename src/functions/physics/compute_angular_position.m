@@ -1,5 +1,5 @@
-function theta_t = build_theta_from_rpm(results, rpm_t)
-% BUILD_THETA_FROM_RPM Integra RPM(t) para obter posição angular
+function theta_t = compute_angular_position(results, rpm_t)
+% COMPUTE_ANGULAR_POSITION Integra RPM(t) para obter posição angular
 
     fs = results.fs;
     t  = (0:length(rpm_t)-1)' / fs;

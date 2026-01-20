@@ -1,5 +1,6 @@
-function rpm_t = build_rpm_time_signal(results, total_samples)
-    % BUILD_RPM_TIME_SIGNAL Constructs a full-length RPM vector from per-cut data.
+function rpm_t = reconstruct_rpm_signal(results, total_samples)
+    % RECONSTRUCT_RPM_SIGNAL Constructs a full-length RPM vector 
+    % from per-cut data.
     
     rpm_t = nan(total_samples, 1);
     

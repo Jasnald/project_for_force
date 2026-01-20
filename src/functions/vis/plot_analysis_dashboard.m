@@ -1,5 +1,5 @@
-function visualize_results(t_steady, fx_steady, cut_indices, results, filename)
-    % VISUALIZE_RESULTS Generates a consistent, publication-ready dashboard.
+function plot_analysis_dashboard(t_steady, fx_steady, cut_indices, results, filename)
+    % PLOT_ANALYSIS_DASHBOARD Generates a consistent, publication-ready dashboard.
     
     title_text = char(filename); 
     

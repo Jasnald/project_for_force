@@ -1,4 +1,4 @@
-function best_theta = auto_find_theta(results)
+function best_theta = optimize_entry_angle(results)
     % Testa ângulos de 0 a 360 graus para achar o melhor ajuste
     search_angles = 0:1:360; 
     best_score = -inf;

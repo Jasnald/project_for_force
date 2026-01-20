@@ -1,5 +1,5 @@
-function [results] = analyze_cuts_and_average(force_x, force_y, cut_indices, fs, num_teeth)
-    % ANALYZE_CUTS_AND_AVERAGE Process cuts and store metadata for reconstruction.
+function [results] = compute_cut_statistics(force_x, force_y, cut_indices, fs, num_teeth)
+    % COMPUTE_CUT_STATISTICS Process cuts and store metadata for reconstruction.
     
     num_cuts = size(cut_indices, 1);
     
