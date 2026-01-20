@@ -11,7 +11,7 @@ function [results] = compute_kinematic_forces(results, raw_fx, raw_fy, theta_s_d
     N = length(raw_fx);
     dt = 1 / results.fs;
     
-    rpm_t = build_rpm_time_signal(results, N);
+    rpm_t = reconstruct_rpm_signal(results, N);
     omega_t = (2 * pi * rpm_t) / 60;       % [rad/s]
     theta_t = cumtrapz((0:N-1)'*dt, omega_t); % [rad]
     
