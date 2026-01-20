@@ -3,12 +3,8 @@ clear; clc; close all;
 
 % --- Setup de Caminhos ---
 script_path = fileparts(mfilename('fullpath'));
-% Adiciona pasta 'functions' (ajuste '../' ou './' dependendo de onde salvar este arquivo)
-if exist(fullfile(script_path, 'functions'), 'dir')
-    addpath(fullfile(script_path, 'functions')); 
-elseif exist(fullfile(script_path, '../functions'), 'dir')
-    addpath(fullfile(script_path, '../functions'));
-end
+addpath(genpath(fullfile(script_path, '../functions')));
+
 
 % --- Configuração ---
 data_folder = "Z:\02_SHK\05_dgl_gm\16_Force Evaluation\01_Data\Parameter set 1\";
