@@ -18,7 +18,7 @@ for k = 1:length(queue)
     
     try
         % 1. Read Data
-        raw = read_tdms_file(exp_data.full_path);
+        raw = read_tdms_file(exp_data.full_path, cfg.io);
         if numel(raw.fs) > 1, raw.fs = raw.fs(1); end
         
         % 2. Auto-Cleaning
@@ -60,11 +60,12 @@ for k = 1:length(queue)
         fprintf('    -> Cuts: %d | Mean RPM: %.0f\n', size(cut_indices,1), results.rpm_mean);
 
         % 7. Kinematic Forces
-        results = compute_kinematic_forces(results, fx_steady, fy_steady, exp_data.theta_s_deg, cfg.stats);
+        results = compute_kinematic_forces(results, fx_steady, fy_steady, ...
+                                        exp_data.theta_s_deg, cfg.stats);
         
         % 8. Visualization
-        plot_analysis_dashboard(t_steady, fx_steady, cut_indices, results, filename);
-        
+        plot_analysis_dashboard(t_steady, fx_steady, cut_indices, ...
+                                results, filename, cfg.vis);
     catch ME
         fprintf('ERROR processing %s: %s\n', filename, ME.message);
     end

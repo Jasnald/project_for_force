@@ -1,8 +1,13 @@
-function data = read_tdms_file(filePath)
+function data = read_tdms_file(filePath, io_params)
     %READ_TDMS_FILE Load TDMS file and extract relevant data
 
-    % Extract sampling rate from channel properties
-    fs = 100000; % Default value
+    if nargin < 2 || isempty(io_params)
+            cfg = config_processing();
+            io_params = cfg.io;
+    end
+
+    % Use configured default
+    fs = io_params.default_fs;
     
     % Load data
     rawCell = tdmsread(filePath);

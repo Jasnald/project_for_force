@@ -27,8 +27,21 @@ function params = config_processing()
 
     %% 5. Filtering
     params.filter.cutoff_freq    = 2000; 
-    params.filter.order          = 4;
+    params.filter.order          = 2;
     
     %% 6. Tool Defaults
     params.tool.num_teeth        = 1;
+
+    params.io.default_fs         = 100000; % Default sampling frequency [Hz]
+
+    %% 6. Visualization Styles (Default plotting parameters)
+    params.vis.font_name         = 'Arial';
+    params.vis.font_size         = 10;
+    params.vis.line_width_thin   = 0.5;
+    params.vis.line_width_thick  = 1.5;
+    params.vis.axis_line_width   = 1.0;
+    params.vis.color_raw         = [0.7 0.7 0.7];
+    params.vis.color_start       = [0 0.8 0];
+    params.vis.color_end         = [0.8 0 0];
+    params.vis.color_mean        = 'k';
 end
