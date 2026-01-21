@@ -26,47 +26,40 @@ function [cut_indices] = detect_cut_indices(force_signal, fs)
     starts = zeros(size(locs));
     ends   = zeros(size(locs));
     
-    start_thresh_pct = 0.10; % 10% do pico para início
-    
+    start_frac = 0.0010;   % 10% do pico
+    end_frac   = 0.0010;   % pode ser igual, ou um pouco menor, ex. 0.05
+
     for i = 1:length(locs)
         peak_idx = locs(i);
         peak_val = pks(i);
-        
-        % --- BUSCA PARA TRÁS (START) ---
-        limit_start = max(noise_floor, peak_val * start_thresh_pct);
-        
+
+        % Limiar relativo ao pico
+        start_lim = max(noise_floor, start_frac * peak_val);
+        end_lim   = max(noise_floor, end_frac   * peak_val);
+
+        % --- INÍCIO: varre para trás até cruzar abaixo do start_lim ---
         idx = peak_idx;
-        while idx > 1
-            if sig_smooth(idx) < limit_start
-                break; % Encontrou o "chão", para.
-            end
+        while idx > 1 && sig_smooth(idx) > start_lim
             idx = idx - 1;
         end
-        % CORREÇÃO SEÇÃO 2: Pega o ponto anterior (idx+1), que ainda está na curva
-        starts(i) = min(idx + 1, peak_idx);
-        
-        % --- BUSCA PARA FRENTE (END) ---
-        limit_end = noise_floor * 1.2; % Tolerância leve acima do ruído
-        
+        if idx == 1 && sig_smooth(1) > start_lim
+            starts(i) = 1;
+        else
+            starts(i) = min(idx + 1, peak_idx);
+        end
+
+        % --- FIM: varre para frente até cruzar abaixo do end_lim ---
         idx = peak_idx;
-        while idx < n_samples
-            % 1. Checa se começou a subir de novo (Próximo dente)
-            if (idx - peak_idx) > (min_dist * 0.5) && sig_smooth(idx) > sig_smooth(idx-1)
-                idx = idx - 1; % Volta um passo para não pegar a subida
-                break; 
-            end
-            
-            % 2. Checa se caiu no chão
-            if sig_smooth(idx) < limit_end
-                idx = idx - 1; % Volta um passo para ficar na curva
-                break;
-            end
-            
+        while idx < n_samples && sig_smooth(idx) > end_lim
             idx = idx + 1;
         end
-        ends(i) = max(idx, peak_idx);
+        if idx == n_samples && sig_smooth(end) > end_lim
+            ends(i) = n_samples;
+        else
+            ends(i) = max(idx - 1, peak_idx);
+        end
     end
-    
+        
     %% 4. Retorno
     if isempty(starts)
         cut_indices = [];

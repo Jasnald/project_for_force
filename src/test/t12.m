@@ -9,8 +9,8 @@ addpath(fullfile(script_path, '..'));
 % --- Configuration ---
 all_experiments = config_experiments();
 proc_params.num_teeth   = 1;
-proc_params.trim_pct    = [0.50, 0.498]; 
-proc_params.cutoff_freq = 5000; 
+proc_params.trim_pct    = [0.50, 0.495]; 
+proc_params.cutoff_freq = 2000; 
 proc_params.filter_ord  = 4;
 
 % --- Select Files ---
