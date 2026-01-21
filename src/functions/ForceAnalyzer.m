@@ -93,7 +93,7 @@ classdef ForceAnalyzer < handle
                         geometry.D, geometry.ae, theta_s);
                 
                 obj.Results = compute_kinematic_forces(obj.Results, fx_steady, fy_steady, ...
-                                                       theta_s, obj.Config.phys, obj.Config.stats);
+                                                    theta_s, obj.Config.stats);
                                                    
                 %% 8. Visualization
                 plot_analysis_dashboard(t_steady, fx_steady, cut_indices, obj.Results, obj.FileName, obj.Config.vis);

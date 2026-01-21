@@ -6,8 +6,8 @@ function params = config_processing()
     params.det.noise_rgn_pct     = 0.20;   
     params.det.noise_std_factor  = 3;      
     params.det.min_dist_sec      = 0.015;  
-    params.det.min_height_pct    = 0.15;   
-    params.det.start_thresh_pct  = 0.10;   
+    params.det.min_height_pct    = 0.015;   
+    params.det.start_thresh_pct  = 0.010;   
     params.det.end_thresh_frac   = 1.0;    
 
     %% 2. Air Cutting (detect_air_cutting)

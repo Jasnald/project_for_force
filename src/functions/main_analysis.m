@@ -12,14 +12,11 @@ addpath(genpath(current_path)); % Adds src/functions, src/classes, etc.
 % --- Tool Geometry ---
 % These are required to calculate the entry angle (theta_s)
 tool_diameter_mm = 20.0;    
-radial_depth_mm  = 2.0;    % ae
+radial_depth_mm  = 1.8;    % ae
+trim_percentages = [0.50, 0.495];  % Trim 10% start/end of steady state segments
 
 % --- Tool Properties ---
 num_teeth        = 1;      % Number of flutes/teeth
-
-% --- Filter Settings ---
-cutoff_freq_hz   = 2000;   % Lowpass filter frequency (Hz)
-filter_order     = 4;      % Filter steepness   
 
 % --- Plotting ---
 close_previous_plots = true;
@@ -51,8 +48,7 @@ analyzer = ForceAnalyzer();
 
 % Apply User Parameters to the Configuration
 analyzer.update_config('tool',   'num_teeth',    num_teeth);
-analyzer.update_config('filter', 'cutoff_freq',  cutoff_freq_hz);
-analyzer.update_config('filter', 'order',        filter_order);
+analyzer.update_config('stats', 'default_trim', trim_percentages);
 
 % Prepare Geometry Struct
 geometry.D  = tool_diameter_mm;

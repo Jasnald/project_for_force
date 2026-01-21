@@ -3,10 +3,11 @@ clear; clc; close all;
 
 % --- Setup ---
 cfg = config_processing(); % Carrega TUDO aqui
+cfg.stats.default_trim = [0.50, 0.495];
 all_experiments = config_experiments();
 
 % Seleciona arquivos (ex: PS3)
-queue = all_experiments(contains([all_experiments.set_name], "PS3"));
+queue = all_experiments(contains([all_experiments.set_name], "PS1"));
 
 %% Processing Loop
 fprintf('Starting processing of %d files...\n', length(queue));
