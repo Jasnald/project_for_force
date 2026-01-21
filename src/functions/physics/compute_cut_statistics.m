@@ -1,10 +1,16 @@
-function [results] = compute_cut_statistics(force_x, force_y, cut_indices, fs, num_teeth)
-    % COMPUTE_CUT_STATISTICS Process cuts and store metadata for reconstruction.
+function [results] = compute_cut_statistics(force_x, force_y, cut_indices, fs, num_teeth, stats_params)
+    % COMPUTE_CUT_STATISTICS Process cuts and store metadata.
+    % Usage: compute_cut_statistics(..., cfg.stats)
+
+    if nargin < 6 || isempty(stats_params)
+        full_cfg = config_processing();
+        stats_params = full_cfg.stats;
+    end
     
     num_cuts = size(cut_indices, 1);
     
-    % Normalization settings
-    norm_len = 1000; 
+    % Use configured normalization length
+    norm_len = stats_params.norm_len; 
     norm_time = linspace(0, 100, norm_len); 
     
     % Initialize matrices
@@ -33,8 +39,7 @@ function [results] = compute_cut_statistics(force_x, force_y, cut_indices, fs, n
             rpms(i) = NaN; 
         end
         
-        % 3. Normalization (For visualization only)
-        % Note: Precise rotation will be done on RAW data later
+        % 3. Normalization
         original_points = 1:length(seg_x);
         target_points = linspace(1, length(seg_x), norm_len);
         
@@ -57,7 +62,6 @@ function [results] = compute_cut_statistics(force_x, force_y, cut_indices, fs, n
     results.stack_x = stack_x;
     results.stack_y = stack_y;
 
-    % --- CRITICAL UPDATE: Save Metadata for Force Calculation ---
     results.cut_indices = cut_indices;
     results.fs = fs; 
 end

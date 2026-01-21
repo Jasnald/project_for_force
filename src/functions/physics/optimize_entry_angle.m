@@ -1,10 +1,21 @@
-function best_theta = optimize_entry_angle(results)
-    % Testa ângulos de 0 a 360 graus para achar o melhor ajuste
-    search_angles = 0:1:360; 
+function best_theta = optimize_entry_angle(results, phys_params)
+    % OPTIMIZE_ENTRY_ANGLE Finds best entry angle based on force positivity.
+    % Usage: optimize_entry_angle(results, cfg.phys)
+
+    if nargin < 2 || isempty(phys_params)
+        full_cfg = config_processing();
+        phys_params = full_cfg.phys;
+    end
+
+    % Configurable search space
+    step = phys_params.angle_step;
+    rng = phys_params.search_range;
+    search_angles = rng(1):step:rng(2); 
+    
     best_score = -inf;
     best_theta = 0;
     
-    % Pega o perfil médio de força para ser mais rápido
+    % Mean profile for speed
     Fx_mean = mean(results.stack_x, 1, 'omitnan');
     Fy_mean = mean(results.stack_y, 1, 'omitnan');
     duration = mean(results.engagement_time_all);
@@ -17,13 +28,11 @@ function best_theta = optimize_entry_angle(results)
         th_rad = deg2rad(theta_guess);
         theta_vec = th_rad + (omega * t);
         
-        % Calcula Fcn (Normal) hipotética
-        % Nota: Fcn = Fx*cos(th) + Fy*sin(th)
+        % Hypothetical Fcn
         Fcn_temp = Fx_mean .* cos(theta_vec) + Fy_mean .* sin(theta_vec);
         
-        % Critério: Queremos maximizar a área POSITIVA e minimizar a negativa
-        % Score = Soma(Fcn) - Penalidade(Fcn_negativa * 10)
-        score = sum(Fcn_temp) - 10 * sum(abs(Fcn_temp(Fcn_temp < 0)));
+        % Score = Sum(Pos) - Penalty * Sum(Neg)
+        score = sum(Fcn_temp) - phys_params.optim_penalty * sum(abs(Fcn_temp(Fcn_temp < 0)));
         
         if score > best_score
             best_score = score;

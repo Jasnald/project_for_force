@@ -1,46 +1,46 @@
-function [win_start, win_end, cut_interval] = detect_air_cutting(signal, fs)
-    % DETECT_AIR_CUTTING Retorna zonas seguras E o intervalo exato do corte.
+function [win_start, win_end, cut_interval] = detect_air_cutting(signal, fs, air_params)
+% DETECT_AIR_CUTTING Detects safe air-cutting windows.
+% Usage: detect_air_cutting(sig, fs, cfg.air)
 
-    %% 1. Mapa de Vibração
+    if nargin < 3 || isempty(air_params)
+        full_cfg = config_processing();
+        air_params = full_cfg.air;
+    end
+
+    %% 1. Vibration Map
     d_sig = [0; diff(signal)]; 
-    vibration_energy = smoothdata(abs(d_sig), 'gaussian', fs*0.5);
+    % Use configured smoothing window
+    smooth_samples = round(fs * air_params.vib_smooth_sec);
+    vibration_energy = smoothdata(abs(d_sig), 'gaussian', smooth_samples);
     
-    %% 2. Limiar Adaptativo
+    %% 2. Adaptive Threshold
     base_noise = median(vibration_energy);
     peak_vib   = max(vibration_energy);
-    thresh = base_noise + (peak_vib - base_noise) * 0.10;
+    thresh = base_noise + (peak_vib - base_noise) * air_params.thresh_factor;
     
     is_cutting = vibration_energy > thresh;
     
-    %% 3. Validar
+    %% 3. Validation
     idx_first = find(is_cutting, 1, 'first');
     idx_last  = find(is_cutting, 1, 'last');
     
     if isempty(idx_first)
-        warning('Nenhuma vibração. Usando padrão.');
+        warning('No vibration detected. Using default 20-80% fallback.');
         idx_first = round(length(signal)*0.2);
         idx_last  = round(length(signal)*0.8);
     end
     
-    %% 4. Tempos e Margens
+    %% 4. Windows Calculation
     t = (0:length(signal)-1) / fs;
-    
-    % --- NOVO: Salva os tempos exatos do corte ---
     cut_interval = [t(idx_first), t(idx_last)];
     
-    buffer_cut  = 2.0; 
-    buffer_file = 1.0; 
+    w1_end   = max(air_params.buff_file_sec, cut_interval(1) - air_params.buff_cut_sec);
+    w2_start = min(t(end) - air_params.buff_file_sec, cut_interval(2) + air_params.buff_cut_sec);
     
-    w1_start = buffer_file;
-    w1_end   = max(w1_start + 0.5, cut_interval(1) - buffer_cut);
+    win_start = [air_params.buff_file_sec, w1_end];
+    win_end   = [w2_start, t(end) - air_params.buff_file_sec];
     
-    w2_start = cut_interval(2) + buffer_cut;
-    w2_end   = max(w2_start + 0.5, t(end) - buffer_file);
-
-    % Proteção final
-    if w1_end > cut_interval(1), w1_end = max(buffer_file, cut_interval(1) - 0.1); end
-    if w2_start > t(end),        w2_start = t(end) - 1.0; w2_end = t(end) - 0.1; end
-
-    win_start = [w1_start, w1_end];
-    win_end   = [w2_start, w2_end];
+    % Basic safety clamp
+    if win_start(2) <= win_start(1), win_start(2) = win_start(1) + 0.1; end
+    if win_end(1) >= win_end(2),     win_end(1) = win_end(2) - 0.1; end
 end
