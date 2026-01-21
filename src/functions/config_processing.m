@@ -27,7 +27,7 @@ function params = config_processing()
 
     %% 5. Filtering
     params.filter.cutoff_freq    = 2000; 
-    params.filter.order          = 2;
+    params.filter.order          = 4;
     
     %% 6. Tool Defaults
     params.tool.num_teeth        = 1;
