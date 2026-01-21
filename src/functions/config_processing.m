@@ -24,4 +24,11 @@ function params = config_processing()
     params.phys.optim_penalty    = 10;     % Penalty weight for negative forces
     params.phys.angle_step       = 1;      % Search resolution [deg]
     params.phys.search_range     = [0, 360]; % Min/Max angle
+
+    %% 5. Filtering
+    params.filter.cutoff_freq    = 2000; 
+    params.filter.order          = 4;
+    
+    %% 6. Tool Defaults
+    params.tool.num_teeth        = 1;
 end
