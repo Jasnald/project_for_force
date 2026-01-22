@@ -1,9 +1,9 @@
 function theta_s = calculate_entry_angle(ae, D)
-    % Calcula o angulo de engajamento fisico (em graus)
-    % ae: profundidade radial de corte (mm)
-    % D:  diametro da ferramenta (mm)
+    arguments
+        ae (1,1) double {mustBeNonnegative} % Profundidade radial
+        D  (1,1) double {mustBePositive}    % Diâmetro da ferramenta
+    end
     
-    % Evita numeros complexos se ae > D
     if ae >= D
         theta_s = 180; 
     else

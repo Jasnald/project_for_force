@@ -1,11 +1,10 @@
 function data = read_tdms_file(filePath, io_params)
     %READ_TDMS_FILE Load TDMS file and extract relevant data
 
-    if nargin < 2 || isempty(io_params)
-            cfg = config_processing();
-            io_params = cfg.io;
+    arguments
+        filePath  (1,:) char {mustBeFile} % Verifica se o ficheiro existe no disco!
+        io_params (1,1) struct = config_processing().io
     end
-
     % Use configured default
     fs = io_params.default_fs;
     

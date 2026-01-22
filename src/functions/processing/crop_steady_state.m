@@ -2,9 +2,24 @@ function [steady_data, steady_time] = crop_steady_state(data, time, cut_interval
     % CROP_STEADY_STATE Crops signal to stable region.
     % trim_pct: Optional. Default loaded from config if omitted.
 
-    if nargin < 4 || isempty(trim_pct)
-        cfg = config_processing();
-        trim_pct = cfg.stats.default_trim;
+    arguments
+        data         (:,1) double
+        time         (:,1) double
+        cut_interval (1,2) double {mustBeNumeric}
+        % Validação individual básica: deve ser positivo e menor que 1
+        trim_pct     (1,2) double {mustBeNonnegative, mustBeLessThan(trim_pct, 1)} = config_processing().stats.default_trim
+    end
+
+    % --- Validação de Tamanho (Vetores) ---
+    if ~isequal(size(data), size(time))
+        error('Erro de Dimensão: Data (%dx%d) e Time (%dx%d) incompatíveis.', size(data), size(time));
+    end
+
+    % --- Validação da SOMA (Regra do Usuário) ---
+    % Garante que sobra sinal (Start% + End% < 100%)
+    if sum(trim_pct) >= 1
+        error('Configuração Inválida: A soma dos cortes (%.1f%% + %.1f%% = %.1f%%) deve ser menor que 100%%.', ...
+              trim_pct(1)*100, trim_pct(2)*100, sum(trim_pct)*100);
     end
     
     t_start = cut_interval(1);

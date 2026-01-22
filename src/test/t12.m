@@ -3,7 +3,7 @@ clear; clc; close all;
 
 % --- Setup ---
 cfg = config_processing(); % Carrega TUDO aqui
-cfg.stats.default_trim = [0.50, 0.495];
+cfg.stats.default_trim = [0.99, 0.001];
 all_experiments = config_experiments();
 
 % Seleciona arquivos (ex: PS3)

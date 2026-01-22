@@ -3,9 +3,10 @@ function [cut_indices] = detect_cut_indices(force_signal, fs, det_params)
 % Usage: detect_cut_indices(sig, fs, cfg.det)
 
     %% 0. Config handling
-    if nargin < 3 || isempty(det_params)
-        full_cfg = config_processing();
-        det_params = full_cfg.det;
+    arguments
+        force_signal (:,1) double {mustBeNumeric} 
+        fs           (1,1) double {mustBePositive}
+        det_params   (1,1) struct = config_processing().det
     end
 
     %% 1. Preparation

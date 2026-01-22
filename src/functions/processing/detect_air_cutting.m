@@ -2,9 +2,11 @@ function [win_start, win_end, cut_interval] = detect_air_cutting(signal, fs, air
 % DETECT_AIR_CUTTING Detects safe air-cutting windows.
 % Usage: detect_air_cutting(sig, fs, cfg.air)
 
-    if nargin < 3 || isempty(air_params)
-        full_cfg = config_processing();
-        air_params = full_cfg.air;
+    arguments
+        signal     (:,1) double {mustBeNumeric} % Vetor coluna
+        fs         (1,1) double {mustBePositive} % Frequência deve ser > 0
+        % Se não passar params, carrega o default automaticamente:
+        air_params (1,1) struct = config_processing().air 
     end
 
     %% 1. Vibration Map
