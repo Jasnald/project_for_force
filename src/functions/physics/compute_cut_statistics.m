@@ -27,6 +27,9 @@ function [results] = compute_cut_statistics(force_x, force_y, cut_indices, fs, n
         seg_x = force_x(idx_start:idx_end);
         seg_y = force_y(idx_start:idx_end);
         
+        results.impulse_x(i,1) = trapz(abs(seg_x)) / fs; % N.s
+        results.impulse_y(i,1) = trapz(abs(seg_y)) / fs; % N.s
+        
         % 1. Time Metrics
         durations(i) = length(seg_x) / fs; 
         

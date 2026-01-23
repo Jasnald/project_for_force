@@ -3,8 +3,11 @@ clear; clc; close all;
 
 % --- Setup ---
 cfg = config_processing(); % Carrega TUDO aqui
-cfg.stats.default_trim = [0.99, 0.001];
+cfg.stats.default_trim = [0.50, 0.495];
 all_experiments = config_experiments();
+cfg.det.min_impulse = 4e-4; 
+cfg.det.start_thresh_pct = 0.05; % 5-10% typical
+cfg.det.min_dist_sec     = 0.00015;
 
 % Seleciona arquivos (ex: PS3)
 queue = all_experiments(contains([all_experiments.set_name], "PS1"));

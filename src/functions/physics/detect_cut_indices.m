@@ -1,65 +1,95 @@
-function [cut_indices] = detect_cut_indices(force_signal, fs, det_params)
-% DETECT_CUT_INDICES Detects cuts using configured parameters.
-% Usage: detect_cut_indices(sig, fs, cfg.det)
+function [cut_indices, diagnostics] = detect_cut_indices(signal, fs, det_params)
+    % DETECT_CUT_INDICES_SIMPLE Streamlined detection based on Impulse.
+    % 1. Defines search regions using an envelope.
+    % 2. Integrates raw signal within those regions.
+    % 3. Filters based on physical impulse (N.s).
 
-    %% 0. Config handling
     arguments
-        force_signal (:,1) double {mustBeNumeric} 
-        fs           (1,1) double {mustBePositive}
-        det_params   (1,1) struct = config_processing().det
+        signal     (:,1) double
+        fs         (1,1) double
+        det_params (1,1) struct = config_processing().det
     end
 
-    %% 1. Preparation
-    smooth_win = round(fs * det_params.smooth_win_sec); 
-    sig_smooth = smoothdata(force_signal, 'gaussian', smooth_win);
-    n_samples = length(sig_smooth);
+    %% 1. Trigger Definition (Corrected Logic)
+    sig_abs = abs(signal);
     
-    % Calculate Noise Floor
-    sorted_sig = sort(sig_smooth);
-    noise_region_idx = round(n_samples * det_params.noise_rgn_pct);
-    noise_region = sorted_sig(1 : max(1, noise_region_idx));
-    noise_floor = mean(noise_region) + det_params.noise_std_factor * std(noise_region);
+    % Short window for trigger detection
+    win_len = max(1, round(fs * 0.0005)); 
+    envelope = movmean(sig_abs, win_len);
+
+    % Threshold calculation
+    noise_floor = mean(envelope(1:round(end*0.15)));
+    peak_val    = max(envelope);
+    threshold   = noise_floor + (peak_val - noise_floor) * det_params.start_thresh_pct;
+
+    % Initial Raw Candidates (No convolution yet)
+    mask = envelope > threshold;
+    edges = diff([0; mask; 0]);
+    raw_s = find(edges > 0);
+    raw_e = find(edges < 0) - 1;
+
+    %% 2. Smart Merge (Fix for the "Fat" Window problem)
+    % Merges gaps strictly INSIDE the cut, without expanding outer edges.
     
-    %% 2. Find Peaks
-    min_dist = fs * det_params.min_dist_sec; 
-    min_height = max(sig_smooth) * det_params.min_height_pct; 
-    min_height = max(min_height, noise_floor * 2);
-
-    [pks, locs] = findpeaks(sig_smooth, ...
-                            'MinPeakDistance', min_dist, ...
-                            'MinPeakHeight', min_height);
-                        
-    %% 3. Precise Search ("Inward" Indexing)
-    starts = zeros(size(locs));
-    ends   = zeros(size(locs));
+    max_gap = round(fs * det_params.min_dist_sec);
     
-    for i = 1:length(locs)
-        peak_idx = locs(i);
-        peak_val = pks(i);
-
-        % Dynamic Thresholds
-        start_lim = max(noise_floor, det_params.start_thresh_pct * peak_val);
-        end_lim   = max(noise_floor, det_params.start_thresh_pct * peak_val); % Using same logic for simplicity, or use specific param
-
-        % --- Backward Search (Start) ---
-        idx = peak_idx;
-        while idx > 1 && sig_smooth(idx) > start_lim
-            idx = idx - 1;
-        end
-        starts(i) = min(idx + 1, peak_idx);
-
-        % --- Forward Search (End) ---
-        idx = peak_idx;
-        while idx < n_samples && sig_smooth(idx) > end_lim
-            idx = idx + 1;
-        end
-        ends(i) = max(idx - 1, peak_idx);
-    end
+    starts = [];
+    ends   = [];
+    
+    if ~isempty(raw_s)
+        current_s = raw_s(1);
+        current_e = raw_e(1);
         
-    %% 4. Return
-    if isempty(starts)
-        cut_indices = [];
-    else
-        cut_indices = [starts(:), ends(:)];
+        for k = 2:length(raw_s)
+            gap = raw_s(k) - current_e;
+            
+            if gap <= max_gap
+                % BRIDGE THE GAP: Extend current end to next segment
+                current_e = raw_e(k);
+            else
+                % GAP TOO BIG: Save current cut and start new one
+                starts = [starts; current_s]; %#ok<AGROW>
+                ends   = [ends;   current_e]; %#ok<AGROW>
+                
+                current_s = raw_s(k);
+                current_e = raw_e(k);
+            end
+        end
+        % Save the last segment
+        starts = [starts; current_s];
+        ends   = [ends;   current_e];
     end
+
+
+    %% 2. Impulse Validation (The Filter)
+    valid_cuts = [];
+    impulses   = [];
+    min_imp    = det_params.min_impulse;
+
+    for k = 1:length(starts)
+        s = starts(k);
+        e = ends(k);
+        
+        % Safety check
+        if e <= s, continue; end
+
+        % Integrate RAW signal using envelope limits
+        % Note: This includes slight 'tails' from the smoothing window, 
+        % but ensures no signal is missed.
+        seg_p_one = sig_abs(s:e);
+        seg_p_two = seg_p_one.^3; % Just to be sure
+        segment_impulse = trapz(seg_p_two) / fs; 
+
+        if segment_impulse >= min_imp
+            valid_cuts = [valid_cuts; s, e];
+            impulses   = [impulses; segment_impulse];
+        end
+    end
+
+    cut_indices = valid_cuts;
+
+    %% 3. Diagnostics
+    diagnostics.energy = envelope;
+    diagnostics.threshold = threshold;
+    diagnostics.cut_impulses = impulses;
 end

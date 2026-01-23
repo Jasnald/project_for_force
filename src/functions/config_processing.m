@@ -5,14 +5,14 @@ function params = config_processing()
     params.det.smooth_win_sec    = 0.0005; 
     params.det.noise_rgn_pct     = 0.20;   
     params.det.noise_std_factor  = 3;      
-    params.det.min_dist_sec      = 0.015;  
-    params.det.min_height_pct    = 0.015;   
-    params.det.start_thresh_pct  = 0.010;   
+    params.det.min_dist_sec      = 0.0005;  
+    params.det.min_height_pct    = 0.0005;   
+    params.det.start_thresh_pct  = 0.08;   
     params.det.end_thresh_frac   = 1.0;    
 
     %% 2. Air Cutting (detect_air_cutting)
     params.air.vib_smooth_sec    = 0.5;    
-    params.air.thresh_factor     = 0.10;   
+    params.air.thresh_factor     = 0.010;   
     params.air.buff_cut_sec      = 2.0;    
     params.air.buff_file_sec     = 1.0;    
 
@@ -27,7 +27,7 @@ function params = config_processing()
 
     %% 5. Filtering
     params.filter.cutoff_freq    = 2000; 
-    params.filter.order          = 4;
+    params.filter.order          = 2;
     
     %% 6. Tool Defaults
     params.tool.num_teeth        = 1;
